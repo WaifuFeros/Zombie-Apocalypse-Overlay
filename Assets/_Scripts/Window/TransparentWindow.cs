@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TransparentWindow : MonoBehaviour
 {
@@ -25,15 +27,15 @@ public class TransparentWindow : MonoBehaviour
     [DllImport("Dwmapi.dll")]
     private static extern uint DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS margins);
 
-    const int GWL_EXSTYLE = -20;
+    private const int GWL_EXSTYLE = -20;
 
-    const uint WS_EX_LAYERED = 0x00080000;
-    const uint WS_EX_TRANSPARENT = 0x00000020;
+    private const uint WS_EX_LAYERED = 0x00080000;
+    private const uint WS_EX_TRANSPARENT = 0x00000020;
 
-    static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+    private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
 
-    IntPtr hWnd;
-    Camera _camera;
+    private IntPtr hWnd;
+    private Camera _camera;
 
     private void Start()
     {
@@ -56,7 +58,8 @@ public class TransparentWindow : MonoBehaviour
 
     private void Update()
     {
-        SetClickThrough(Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)) == null);
+        //SetClickThrough(Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)) == null);
+        SetClickThrough(!EventSystem.current.IsPointerOverGameObject());
     }
 
     private void SetClickThrough(bool clickThrough)
