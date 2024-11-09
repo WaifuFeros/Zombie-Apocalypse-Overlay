@@ -40,6 +40,7 @@ public class TransparentWindowChatGPT : MonoBehaviour
 
     private void Start()
     {
+#if (!UNITY_EDITOR)
         IntPtr hWnd = GetActiveWindow();
 
         // Étendre la transparence dans la fenêtre
@@ -52,5 +53,6 @@ public class TransparentWindowChatGPT : MonoBehaviour
 
         // Configurer la fenêtre pour qu'elle reste toujours au-dessus des autres (topmost)
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
     }
 }

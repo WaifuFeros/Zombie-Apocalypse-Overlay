@@ -6,6 +6,9 @@ public class SoldierShoot : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
 
+    [Space]
+    [SerializeField] private int _baseDamage = 2;
+
     private void Awake()
     {
         if (!_animator)
@@ -14,11 +17,21 @@ public class SoldierShoot : MonoBehaviour
 
     private void Start()
     {
+#if (!UNITY_EDITOR)
         KeyboardHook.KeyPressed += (keyCode) => Shoot();
         KeyboardHook.SetHook();
+#endif
     }
 
-    private void OnApplicationQuit()
+#if (UNITY_EDITOR)
+    private void Update()
+    {
+        if (Input.anyKeyDown)
+            Shoot();
+    }
+#endif
+
+        private void OnApplicationQuit()
     {
         KeyboardHook.Unhook();
     }
@@ -26,5 +39,7 @@ public class SoldierShoot : MonoBehaviour
     private void Shoot()
     {
         _animator.SetTrigger("Shoot");
+
+        Zombie.DamageZombie(_baseDamage);
     }
 }
