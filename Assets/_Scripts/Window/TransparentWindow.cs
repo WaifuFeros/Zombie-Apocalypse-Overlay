@@ -28,9 +28,12 @@ public class TransparentWindow : MonoBehaviour
     private static extern uint DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS margins);
 
     private const int GWL_EXSTYLE = -20;
-
-    private const uint WS_EX_LAYERED = 0x00080000;
-    private const uint WS_EX_TRANSPARENT = 0x00000020;
+    private const uint WS_EX_TOOLWINDOW = 0x00000080; // Masquer l'icône dans la barre des tâches
+    private const uint WS_EX_LAYERED = 0x80000; // Pour rendre la fenêtre transparente
+    private const uint WS_EX_TRANSPARENT = 0x20; // Pour rendre la fenêtre cliquable à travers
+    private const uint WS_EX_TOPMOST = 0x00000008; // Pour rendre la fenêtre toujours au-dessus
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
 
     private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
 
@@ -47,10 +50,12 @@ public class TransparentWindow : MonoBehaviour
         DwmExtendFrameIntoClientArea(hWnd, ref margin);
 
         // Make window click-through
-        SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        //SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST);
 
         // Make window stay on top
-        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
+        //SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 #endif
 
         _camera = Camera.main;
@@ -65,8 +70,8 @@ public class TransparentWindow : MonoBehaviour
     private void SetClickThrough(bool clickThrough)
     {
         if (clickThrough)
-            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
         else
-            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST);
     }
 }
