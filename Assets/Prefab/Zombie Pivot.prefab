@@ -155,5 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575812826822f3640b9daa49c9d23d85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animator: {fileID: 930385315977768181}
   <hp>k__BackingField: 10
   speed: 0.1

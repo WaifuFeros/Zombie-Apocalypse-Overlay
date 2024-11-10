@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Zombie : MonoBehaviour
 {
+    [SerializeField] private Animator _animator;
+
     [field:SerializeField] public int hp { get; private set; } = 10;
     [SerializeField] private float speed = 5;
 
@@ -20,6 +22,7 @@ public class Zombie : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        _animator.SetTrigger("Hit");
         if (hp <= 0)
             Die();
     }
