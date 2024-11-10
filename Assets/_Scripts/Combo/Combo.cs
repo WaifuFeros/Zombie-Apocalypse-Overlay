@@ -14,6 +14,7 @@ public class Combo : MonoBehaviour
     private void Start()
     {
         InputHook.KeyPressed += KeyPressed;
+        _comboText.gameObject.SetActive(false);
     }
 
     private void Update()
