@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 
-public class SoldierShoot : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
 
