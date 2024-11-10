@@ -46,7 +46,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 8460741914437337740}
+  _hitMarker: {fileID: 0}
   _baseDamage: 2
+  _penetrationLevel: 1
+  _chargePerShot: 5
+  debugZombie: []
 --- !u!1 &1501856850110526124
 GameObject:
   m_ObjectHideFlags: 0
