@@ -262,11 +262,6 @@ Transform:
   - {fileID: 6838361172127936712}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!198 &500790268 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 3247234907713077382, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-  m_PrefabInstance: {fileID: 1462918798378317911}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,6 +370,7 @@ GameObject:
   - component: {fileID: 1054705960}
   - component: {fileID: 1054705961}
   - component: {fileID: 1054705962}
+  - component: {fileID: 1054705963}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -425,9 +421,25 @@ MonoBehaviour:
   _zombiePrefab: {fileID: 5824548890347560098, guid: 9663904f96290d94f895df5b6b4b88e9, type: 3}
   _zombieSpawnPoint: {fileID: 1201951526}
   _spawnBounds: {x: -8, y: 0}
+  _startingCharge: 100
   _chargeLimit: 100
   _chargeOverTime: 20
+  _chargeOnClick: 70
   _spawnBoundHeight: 0.2
+--- !u!114 &1054705963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054705958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc8450e51b2b8c4e8971b03741d5df5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableKeyboardHook: 1
+  enableMouseHook: 1
 --- !u!1 &1126103316
 GameObject:
   m_ObjectHideFlags: 0
@@ -929,63 +941,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1001 &1462918798378317911
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 1.471
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3123847896793819847, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
-      propertyPath: m_Name
-      value: Hit Marker Particle System
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
 --- !u!1 &2452325773238624748
 GameObject:
   m_ObjectHideFlags: 0
@@ -1054,10 +1009,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Soldier Pivot
       objectReference: {fileID: 0}
-    - target: {fileID: 2376408372016246970, guid: 04835b71e6b4c9f4181ec9be5a78b99b, type: 3}
-      propertyPath: _hitMarker
-      value: 
-      objectReference: {fileID: 500790268}
     - target: {fileID: 3615895809375442019, guid: 04835b71e6b4c9f4181ec9be5a78b99b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7
@@ -1224,4 +1175,3 @@ SceneRoots:
   - {fileID: 332727119}
   - {fileID: 215079852}
   - {fileID: 154982791}
-  - {fileID: 1462918798378317911}

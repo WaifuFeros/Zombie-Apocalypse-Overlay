@@ -1,8 +1,6 @@
-//using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 public class ZombieWaveManager : MonoBehaviour
 {
@@ -17,7 +15,10 @@ public class ZombieWaveManager : MonoBehaviour
     [SerializeField] private Vector2 _spawnBounds = new Vector2(-5, 0);
     [SerializeField] private float _startingCharge = 100;
     [SerializeField] private float _chargeLimit = 100;
+
+    [Space]
     [SerializeField] private float _chargeOverTime = 10;
+    [SerializeField] private float _chargeOnClick = 10;
 
     [Header("Editor")]
     [SerializeField] private float _spawnBoundHeight = 1;
@@ -36,6 +37,11 @@ public class ZombieWaveManager : MonoBehaviour
         Instance = this;
 
         _zombieSpawnCharge = _startingCharge;
+    }
+
+    private void Start()
+    {
+        InputHook.MouseClicked += MouseClick;
     }
 
     private void Update()
@@ -74,7 +80,7 @@ public class ZombieWaveManager : MonoBehaviour
 
             Vector3 spawnPos = _zombieSpawnPoint.position.With(x: Random.Range(_spawnBounds.x, _spawnBounds.y));
 
-            Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint); 
+            Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint);
             _zombieSpawnCharge -= _chargeLimit;
         }
     }
@@ -88,6 +94,12 @@ public class ZombieWaveManager : MonoBehaviour
 
         if (Instance._zombieSpawnCharge >= Instance._chargeLimit)
             Instance.SpawnZombie();
+    }
+
+    private void MouseClick(InputHook.MouseClickType obj)
+    {
+        if (obj == InputHook.MouseClickType.LeftClick)
+            AddCharge(_chargeOnClick);
     }
 
     private void OnDrawGizmosSelected()

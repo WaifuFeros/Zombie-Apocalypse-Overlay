@@ -23,8 +23,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
 #if (!UNITY_EDITOR)
-        KeyboardHook.KeyPressed += (keyCode) => Shoot();
-        KeyboardHook.SetHook();
+        InputHook.KeyPressed += (keyCode) => Shoot();
 #endif
     }
 
@@ -35,11 +34,6 @@ public class Player : MonoBehaviour
             Shoot();
     }
 #endif
-
-        private void OnApplicationQuit()
-    {
-        KeyboardHook.Unhook();
-    }
 
     private void Shoot()
     {
