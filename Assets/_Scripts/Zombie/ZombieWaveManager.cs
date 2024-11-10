@@ -1,4 +1,4 @@
-using System;
+//using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,8 +14,13 @@ public class ZombieWaveManager : MonoBehaviour
     private bool CanSpawnZombie => ZombieLimit - ZombieCount > 0;
     [SerializeField] private GameObject _zombiePrefab;
     [SerializeField] private Transform _zombieSpawnPoint;
+    [SerializeField] private Vector2 _spawnBounds = new Vector2(-5, 0);
+    [SerializeField] private float _startingCharge = 100;
     [SerializeField] private float _chargeLimit = 100;
     [SerializeField] private float _chargeOverTime = 10;
+
+    [Header("Editor")]
+    [SerializeField] private float _spawnBoundHeight = 1;
 
     private float _zombieSpawnCharge = 0;
     private int _zombieCount;
@@ -29,6 +34,8 @@ public class ZombieWaveManager : MonoBehaviour
         }
 
         Instance = this;
+
+        _zombieSpawnCharge = _startingCharge;
     }
 
     private void Update()
@@ -45,7 +52,7 @@ public class ZombieWaveManager : MonoBehaviour
         All.Add(zombie);
         return true;
     }
-
+    
     public static bool RemoveZombie(Zombie zombie)
     {
         return All.Remove(zombie);
@@ -62,10 +69,12 @@ public class ZombieWaveManager : MonoBehaviour
         countToSpawn = Mathf.Min(countToSpawn, ZombieLimit - ZombieCount);
         for (int i = 0; i < countToSpawn; i++)
         {
-            if (ZombieCount >= ZombieLimit)
+            if (!CanSpawnZombie)
                 continue;
 
-            Instantiate(_zombiePrefab, _zombieSpawnPoint.position, Quaternion.identity, _zombieSpawnPoint); 
+            Vector3 spawnPos = _zombieSpawnPoint.position.With(x: Random.Range(_spawnBounds.x, _spawnBounds.y));
+
+            Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint); 
             _zombieSpawnCharge -= _chargeLimit;
         }
     }
@@ -79,5 +88,13 @@ public class ZombieWaveManager : MonoBehaviour
 
         if (Instance._zombieSpawnCharge >= Instance._chargeLimit)
             Instance.SpawnZombie();
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 center = _zombieSpawnPoint.position;
+        center.x += (_spawnBounds.x + _spawnBounds.y) / 2;
+        float size = _spawnBounds.y - _spawnBounds.x;
+        Gizmos.DrawWireCube(center, new Vector3(size, _spawnBoundHeight, 0));
     }
 }

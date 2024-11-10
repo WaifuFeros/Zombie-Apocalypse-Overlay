@@ -13,7 +13,6 @@ public class Player : MonoBehaviour
     [SerializeField] private int _baseDamage = 2;
     [SerializeField, Min(1)] private int _penetrationLevel = 1;
     [SerializeField] private float _chargePerShot = 5;
-    [SerializeField] private List<Zombie> debugZombie;
 
     private void Awake()
     {
@@ -47,8 +46,6 @@ public class Player : MonoBehaviour
         _animator.SetTrigger("Shoot");
 
         var zombiesHit = ZombieWaveManager.GetZombiesByRange(transform.position, _penetrationLevel);
-
-        debugZombie = zombiesHit;
 
         foreach (var zombie in zombiesHit)
         {
