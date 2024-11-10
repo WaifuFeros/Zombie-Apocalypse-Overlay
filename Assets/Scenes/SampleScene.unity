@@ -833,6 +833,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7674840386853185941, guid: 9663904f96290d94f895df5b6b4b88e9, type: 3}
+      propertyPath: _speedMultiplier
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7674840386853185941, guid: 9663904f96290d94f895df5b6b4b88e9, type: 3}
+      propertyPath: <HP>k__BackingField
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 7674840386853185941, guid: 9663904f96290d94f895df5b6b4b88e9, type: 3}
       propertyPath: <hp>k__BackingField
       value: 10000
       objectReference: {fileID: 0}

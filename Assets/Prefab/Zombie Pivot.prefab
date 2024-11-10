@@ -156,5 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 930385315977768181}
-  <hp>k__BackingField: 10
-  speed: 0.1
+  <HP>k__BackingField: 10
+  _speedRange: {x: 0.8, y: 3}
+  _speedMultiplier: 0.1
+  _killzone: {x: -9.5, y: 9.5}
