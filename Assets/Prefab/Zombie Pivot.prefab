@@ -87,7 +87,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!95 &930385315977768181
 Animator:
   serializedVersion: 7
@@ -156,6 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 930385315977768181}
+  _renderer: {fileID: 4058073247663997500}
   _startingHP: 10
   _speedRange: {x: 0.8, y: 3}
   _speedMultiplier: 0.1

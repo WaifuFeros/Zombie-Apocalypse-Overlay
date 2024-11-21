@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Zombie : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class Zombie : MonoBehaviour
     public System.Action<Zombie> OnDeath;
     
     [SerializeField] private Animator _animator;
+    [SerializeField] private SpriteRenderer _renderer;
 
     [SerializeField, Min(0)] private int _startingHP = 10;
     [SerializeField] private Vector2 _speedRange = new Vector2(0.8f, 1.2f);
@@ -34,17 +36,11 @@ public class Zombie : MonoBehaviour
 
     private void Die()
     {
-        Despawn();
-    }
-
-    private void Despawn()
-    {
         ZombieWaveManager.RemoveZombie(this);
         gameObject.SetActive(false);
+        _renderer.color = Color.white;
         OnDeath?.Invoke(this);
-        //Destroy(gameObject);
     }
-
     public void PoolReset()
     {
         HP = _startingHP;
