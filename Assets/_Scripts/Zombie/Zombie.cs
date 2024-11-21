@@ -4,20 +4,18 @@ using UnityEngine;
 
 public class Zombie : MonoBehaviour
 {
+    public int HP { get; private set; } = 10;
+
+    public System.Action<Zombie> OnDeath;
+    
     [SerializeField] private Animator _animator;
 
-    [field:SerializeField] public int HP { get; private set; } = 10;
+    [SerializeField, Min(0)] private int _startingHP = 10;
     [SerializeField] private Vector2 _speedRange = new Vector2(0.8f, 1.2f);
     [SerializeField] private float _speedMultiplier = 0.1f;
     [SerializeField] private Vector2 _killzone = new Vector2(-9.5f, 9.5f);
 
     private float _speed = 0.1f;
-
-    private void Start()
-    {
-        _speed = Random.Range(_speedRange.x, _speedRange.y) * _speedMultiplier;
-        ZombieWaveManager.AddZombie(this);
-    }
 
     private void Update()
     {
@@ -42,7 +40,16 @@ public class Zombie : MonoBehaviour
     private void Despawn()
     {
         ZombieWaveManager.RemoveZombie(this);
-        Destroy(gameObject);
+        gameObject.SetActive(false);
+        OnDeath?.Invoke(this);
+        //Destroy(gameObject);
+    }
+
+    public void PoolReset()
+    {
+        HP = _startingHP;
+        _speed = Random.Range(_speedRange.x, _speedRange.y) * _speedMultiplier;
+        ZombieWaveManager.AddZombie(this);
     }
 
     private void OnDrawGizmosSelected()

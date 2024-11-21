@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class ZombieWaveManager : MonoBehaviour
 {
@@ -13,18 +15,21 @@ public class ZombieWaveManager : MonoBehaviour
     [SerializeField] private GameObject _zombiePrefab;
     [SerializeField] private Transform _zombieSpawnPoint;
     [SerializeField] private Vector2 _spawnBounds = new Vector2(-5, 0);
+    [SerializeField] private Vector2 _spawnHeightBounds = new Vector2(-0.25f, 0.25f);
     [SerializeField] private float _startingCharge = 100;
     [SerializeField] private float _chargeLimit = 100;
 
     [Space]
-    [SerializeField] private float _chargeOverTime = 10;
-    [SerializeField] private float _chargeOnClick = 10;
+    [SerializeField] private float _chargeOverTime = 20;
+    [SerializeField] private float _chargeOnClick = 70;
 
     [Header("Editor")]
     [SerializeField] private float _spawnBoundHeight = 1;
 
     private float _zombieSpawnCharge = 0;
     private int _zombieCount;
+
+    private ObjectPool<Zombie> _pool;
 
     private void Awake()
     {
@@ -37,11 +42,29 @@ public class ZombieWaveManager : MonoBehaviour
         Instance = this;
 
         _zombieSpawnCharge = _startingCharge;
+
+        SettingsSave.OnChanged += OnSettingsChanged;
+
+        InputHook.MouseClicked += MouseClick;
     }
 
     private void Start()
     {
-        InputHook.MouseClicked += MouseClick;
+        _pool = new ObjectPool<Zombie>(PoolInit, PoolGet, defaultCapacity: ZombieLimit);
+
+        for (int i = 0; i < ZombieLimit; i++)
+        {
+            _pool.Release(PoolInit());
+        }
+    }
+
+    private void OnSettingsChanged(SettingsSave save)
+    {
+        _zombieSpawnPoint.localPosition = new Vector3(0f, save.GroundHeight, 0f);
+
+        ZombieLimit = save.ZombieLimit;
+        _chargeOverTime = save.ChargeOverTime;
+        _chargeOnClick = save.ChargeOnClick;
     }
 
     private void Update()
@@ -79,8 +102,11 @@ public class ZombieWaveManager : MonoBehaviour
                 continue;
 
             Vector3 spawnPos = _zombieSpawnPoint.position.With(x: Random.Range(_spawnBounds.x, _spawnBounds.y));
+            spawnPos.y += Random.Range(_spawnHeightBounds.x, _spawnHeightBounds.y);
 
-            Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint);
+            //Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint);
+            var zombie = _pool.Get();
+            zombie.transform.position = spawnPos;
             _zombieSpawnCharge -= _chargeLimit;
         }
     }
@@ -100,6 +126,28 @@ public class ZombieWaveManager : MonoBehaviour
     {
         if (obj == InputHook.MouseClickType.LeftClick)
             AddCharge(_chargeOnClick);
+    }
+
+    private Zombie PoolInit()
+    {
+        var go = Instantiate(_zombiePrefab, _zombieSpawnPoint);
+        go.SetActive(false);
+
+        var zombie = go.GetComponent<Zombie>();
+        zombie.OnDeath += OnZombieDied;
+
+        return zombie;
+    }
+
+    private void PoolGet(Zombie zombie)
+    {
+        zombie.PoolReset();
+        zombie.gameObject.SetActive(true);
+    }
+
+    private void OnZombieDied(Zombie zombie)
+    {
+        _pool.Release(zombie);
     }
 
     private void OnDrawGizmosSelected()
