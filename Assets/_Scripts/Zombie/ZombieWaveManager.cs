@@ -182,7 +182,7 @@ namespace WMG.ZombieApocalypseOverlay
 
         public void Settings_SetGroundHeight(string height)
         {
-            _zombieSpawnPoint.transform.localPosition = _zombieSpawnPoint.transform.localPosition.With(y: float.Parse(height.Replace('.', ',')));
+            _zombieSpawnPoint.transform.localPosition = _zombieSpawnPoint.transform.localPosition.With(y: FormatStringToFloat(height));
         }
 
         public void Settings_SetGroundHeight(float height)
@@ -197,10 +197,9 @@ namespace WMG.ZombieApocalypseOverlay
             _zombieLimitField.text = limitInt.ToString();
         }
 
-        public void Settings_SetChargeOverTime(string chargeOverTime)
-        {
-            _chargeOverTime = float.Parse(chargeOverTime.Replace(".", ","));
-        }
+        public void Settings_SetChargeOverTime(string chargeOverTime) => _chargeOverTime = FormatStringToFloat(chargeOverTime);
+
+        private float FormatStringToFloat(string value) => string.IsNullOrEmpty(value) ? 0f : float.Parse(value.Replace('.', ','));
         #endregion
     }
 }
