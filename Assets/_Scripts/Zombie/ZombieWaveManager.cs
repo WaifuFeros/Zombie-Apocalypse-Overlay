@@ -1,160 +1,206 @@
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UI;
+using WMG.OverlayWindow;
 
-public class ZombieWaveManager : MonoBehaviour
+namespace WMG.ZombieApocalypseOverlay
 {
-    private static List<Zombie> All = new List<Zombie>();
-    private static ZombieWaveManager Instance;
-    public static int ZombieCount => All.Count;
-
-    [field: SerializeField] public int ZombieLimit { get; private set; }
-    private bool CanSpawnZombie => ZombieLimit - ZombieCount > 0;
-    [SerializeField] private GameObject _zombiePrefab;
-    [SerializeField] private Transform _zombieSpawnPoint;
-    [SerializeField] private Vector2 _spawnBounds = new Vector2(-5, 0);
-    [SerializeField] private Vector2 _spawnHeightBounds = new Vector2(-0.25f, 0.25f);
-    [SerializeField] private float _startingCharge = 100;
-    [SerializeField] private float _chargeLimit = 100;
-
-    [Space]
-    [SerializeField] private float _chargeOverTime = 20;
-    [SerializeField] private float _chargeOnClick = 70;
-
-    [Header("Editor")]
-    [SerializeField] private float _spawnBoundHeight = 1;
-
-    private float _zombieSpawnCharge = 0;
-    private int _zombieCount;
-
-    private ObjectPool<Zombie> _pool;
-
-    private void Awake()
+    public class ZombieWaveManager : MonoBehaviour, ISavedComponent<SettingsSave>
     {
-        if (Instance != null)
+        private static List<Zombie> All = new List<Zombie>();
+        private static ZombieWaveManager Instance;
+        public static int ZombieCount => All.Count;
+
+        [field: SerializeField] public int ZombieLimit { get; private set; }
+        private bool CanSpawnZombie => (ZombieLimit - ZombieCount) > 0;
+        [SerializeField] private GameObject _zombiePrefab;
+        [SerializeField] private Transform _zombieSpawnPoint;
+        [SerializeField] private ValueRange _spawnBoundsX = new ValueRange(-9.5f, 0f);
+        [SerializeField] private ValueRange _spawnBoundsY = new ValueRange(-0.25f, 0.25f);
+        [SerializeField] private float _startingCharge = 100;
+        [SerializeField] private float _chargeLimit = 100;
+
+        [Space]
+        [SerializeField] private float _chargeOverTime = 20;
+        [SerializeField] private float _chargeOnClick = 70;
+
+        [Header("Settings")]
+        [SerializeField] private InputField _groundHeightField;
+        [SerializeField] private InputField _zombieLimitField;
+
+        private ObjectPool<Zombie> _pool;
+
+        private float _zombieSpawnCharge = 0;
+        private int _zombieCount;
+
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+
+            _zombieSpawnCharge = _startingCharge;
+
+            InputHook.MouseClicked += MouseClick;
         }
 
-        Instance = this;
-
-        _zombieSpawnCharge = _startingCharge;
-
-        SettingsSave.OnChanged += OnSettingsChanged;
-
-        InputHook.MouseClicked += MouseClick;
-    }
-
-    private void Start()
-    {
-        _pool = new ObjectPool<Zombie>(PoolInit, PoolGet, defaultCapacity: ZombieLimit);
-
-        for (int i = 0; i < ZombieLimit; i++)
+        private void Start()
         {
-            _pool.Release(PoolInit());
+            _pool = new ObjectPool<Zombie>(PoolInit, PoolGet, defaultCapacity: ZombieLimit);
+
+            for (int i = 0; i < ZombieLimit; i++)
+            {
+                _pool.Release(PoolInit());
+            }
+
+            Settings_SetInputFields();
         }
-    }
 
-    private void OnSettingsChanged(SettingsSave save)
-    {
-        _zombieSpawnPoint.localPosition = new Vector3(0f, save.GroundHeight, 0f);
-
-        ZombieLimit = save.ZombieLimit;
-        _chargeOverTime = save.ChargeOverTime;
-        _chargeOnClick = save.ChargeOnClick;
-    }
-
-    private void Update()
-    {
-        AddCharge(_chargeOverTime * Time.deltaTime);
-        _zombieCount = ZombieCount;
-    }
-
-    public static bool AddZombie(Zombie zombie)
-    {
-        if (All.Count >= Instance.ZombieLimit)
-            return false;
-
-        All.Add(zombie);
-        return true;
-    }
-    
-    public static bool RemoveZombie(Zombie zombie)
-    {
-        return All.Remove(zombie);
-    }
-
-    public static List<Zombie> GetZombiesByRange(Vector3 attackerPosition, int count = 1)
-    {
-        return All.OrderBy(x => (x.transform.position - attackerPosition).sqrMagnitude).ToList().GetRange(0, Mathf.Min(count, ZombieCount));
-    }
-
-    private void SpawnZombie()
-    {
-        var countToSpawn = Mathf.FloorToInt(_zombieSpawnCharge / _chargeLimit);
-        countToSpawn = Mathf.Min(countToSpawn, ZombieLimit - ZombieCount);
-        for (int i = 0; i < countToSpawn; i++)
+        private void Update()
         {
-            if (!CanSpawnZombie)
-                continue;
-
-            Vector3 spawnPos = _zombieSpawnPoint.position.With(x: Random.Range(_spawnBounds.x, _spawnBounds.y));
-            spawnPos.y += Random.Range(_spawnHeightBounds.x, _spawnHeightBounds.y);
-
-            //Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint);
-            var zombie = _pool.Get();
-            zombie.transform.position = spawnPos;
-            _zombieSpawnCharge -= _chargeLimit;
+            AddCharge(_chargeOverTime * Time.deltaTime);
+            _zombieCount = ZombieCount;
         }
-    }
 
-    public static void AddCharge(float charge)
-    {
-        if (!Instance.CanSpawnZombie)
-            return;
+        public static bool AddZombie(Zombie zombie)
+        {
+            if (All.Count >= Instance.ZombieLimit)
+                return false;
 
-        Instance._zombieSpawnCharge += charge;
+            All.Add(zombie);
+            return true;
+        }
 
-        if (Instance._zombieSpawnCharge >= Instance._chargeLimit)
-            Instance.SpawnZombie();
-    }
+        public static bool RemoveZombie(Zombie zombie)
+        {
+            return All.Remove(zombie);
+        }
 
-    private void MouseClick(InputHook.MouseClickType obj)
-    {
-        if (obj == InputHook.MouseClickType.LeftClick)
-            AddCharge(_chargeOnClick);
-    }
+        public static List<Zombie> GetZombiesByRange(Vector3 attackerPosition, int count = 1)
+        {
+            Debug.Log(All.Count);
+            return All.OrderBy(x => (x.transform.position - attackerPosition).sqrMagnitude).ToList().GetRange(0, Mathf.Min(count, ZombieCount));
+        }
 
-    private Zombie PoolInit()
-    {
-        var go = Instantiate(_zombiePrefab, _zombieSpawnPoint);
-        go.SetActive(false);
+        private void SpawnZombie()
+        {
+            var countToSpawn = Mathf.FloorToInt(_zombieSpawnCharge / _chargeLimit);
+            countToSpawn = Mathf.Min(countToSpawn, ZombieLimit - ZombieCount);
+            for (int i = 0; i < countToSpawn; i++)
+            {
+                if (!CanSpawnZombie)
+                    continue;
 
-        var zombie = go.GetComponent<Zombie>();
-        zombie.OnDeath += OnZombieDied;
+                Vector3 spawnPos = _zombieSpawnPoint.position.With(x: Random.Range(_spawnBoundsX.Min, _spawnBoundsX.Max));
+                spawnPos.y += Random.Range(_spawnBoundsY.Min, _spawnBoundsY.Max);
 
-        return zombie;
-    }
+                //Instantiate(_zombiePrefab, spawnPos, Quaternion.identity, _zombieSpawnPoint);
+                var zombie = _pool.Get();
+                zombie.transform.position = spawnPos;
+                _zombieSpawnCharge -= _chargeLimit;
+            }
+        }
 
-    private void PoolGet(Zombie zombie)
-    {
-        zombie.PoolReset();
-        zombie.gameObject.SetActive(true);
-    }
+        public static void AddCharge(float charge)
+        {
+            if (!Instance.CanSpawnZombie)
+                return;
 
-    private void OnZombieDied(Zombie zombie)
-    {
-        _pool.Release(zombie);
-    }
+            Instance._zombieSpawnCharge += charge;
 
-    private void OnDrawGizmosSelected()
-    {
-        Vector3 center = _zombieSpawnPoint.position;
-        center.x += (_spawnBounds.x + _spawnBounds.y) / 2;
-        float size = _spawnBounds.y - _spawnBounds.x;
-        Gizmos.DrawWireCube(center, new Vector3(size, _spawnBoundHeight, 0));
+            if (Instance._zombieSpawnCharge >= Instance._chargeLimit)
+                Instance.SpawnZombie();
+        }
+
+        private void MouseClick(InputHook.MouseClickType obj)
+        {
+            if (obj == InputHook.MouseClickType.LeftClick)
+                AddCharge(_chargeOnClick);
+        }
+
+        #region Pooling
+        private Zombie PoolInit()
+        {
+            var go = Instantiate(_zombiePrefab, _zombieSpawnPoint);
+            go.SetActive(false);
+
+            var zombie = go.GetComponent<Zombie>();
+            zombie.OnDeath += OnZombieDied;
+
+            return zombie;
+        }
+
+        private void PoolGet(Zombie zombie)
+        {
+            zombie.PoolReset();
+            zombie.gameObject.SetActive(true);
+        }
+
+        private void OnZombieDied(Zombie zombie)
+        {
+            _pool.Release(zombie);
+        } 
+        #endregion
+
+        private void OnDrawGizmosSelected()
+        {
+            Vector3 center = _zombieSpawnPoint.position;
+            center.x += (_spawnBoundsX.Min + _spawnBoundsX.Max) / 2;
+            center.y += (_spawnBoundsY.Min + _spawnBoundsY.Max) / 2;
+            Vector3 size = new Vector3(_spawnBoundsX.Max - _spawnBoundsX.Min, _spawnBoundsY.Max - _spawnBoundsY.Min, 0);
+            Gizmos.DrawWireCube(center, size);
+        }
+
+        #region Settings
+        public void OnLoad(SettingsSave save)
+        {
+            Settings_SetGroundHeight(save.GroundHeight);
+            ZombieLimit = save.ZombieLimit;
+            //_chargeOverTime = save.ChargeOverTime;
+        }
+
+        public void OnSave(SettingsSave save)
+        {
+            save.GroundHeight = _zombieSpawnPoint.transform.localPosition.y;
+            save.ZombieLimit = ZombieLimit;
+            //save.ChargeOverTime = _chargeOverTime;
+        } 
+
+        private void Settings_SetInputFields()
+        {
+            _groundHeightField.text = _zombieSpawnPoint.transform.localPosition.y.ToString();
+            _zombieLimitField.text = ZombieLimit.ToString();
+        }
+
+        public void Settings_SetGroundHeight(string height)
+        {
+            _zombieSpawnPoint.transform.localPosition = _zombieSpawnPoint.transform.localPosition.With(y: float.Parse(height.Replace('.', ',')));
+        }
+
+        public void Settings_SetGroundHeight(float height)
+        {
+            _zombieSpawnPoint.transform.localPosition = _zombieSpawnPoint.transform.localPosition.With(y: height);
+        }
+
+        public void Settings_SetZombieLimit(string limit)
+        {
+            var limitInt = Mathf.Max(int.Parse(limit), 0);
+            ZombieLimit = limitInt;
+            _zombieLimitField.text = limitInt.ToString();
+        }
+
+        public void Settings_SetChargeOverTime(string chargeOverTime)
+        {
+            _chargeOverTime = float.Parse(chargeOverTime.Replace(".", ","));
+        }
+        #endregion
     }
 }

@@ -158,6 +158,10 @@ MonoBehaviour:
   _animator: {fileID: 930385315977768181}
   _renderer: {fileID: 4058073247663997500}
   _startingHP: 10
-  _speedRange: {x: 0.8, y: 3}
+  _speedRange:
+    Min: 0.8
+    Max: 3
   _speedMultiplier: 0.1
-  _killzone: {x: -10.5, y: 9.5}
+  _killzone:
+    Min: -10.5
+    Max: 9.5

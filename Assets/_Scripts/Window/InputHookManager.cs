@@ -1,33 +1,36 @@
 using UnityEngine;
 
-public class InputHookManager : MonoBehaviour
+namespace WMG.OverlayWindow
 {
-    [Header("Hook Settings")]
-    public bool enableKeyboardHook = true;  // Permet d'activer ou désactiver le hook clavier dans l'inspector
-    public bool enableMouseHook = true;     // Permet d'activer ou désactiver le hook souris dans l'inspector
-
-    void Start()
+    public class InputHookManager : MonoBehaviour
     {
-        // Active les hooks selon les paramètres
-        if (enableKeyboardHook)
-            InputHook.EnableHook(InputHook.HookType.Keyboard);
+        [Header("Hook Settings")]
+        public bool enableKeyboardHook = true;  // Permet d'activer ou désactiver le hook clavier dans l'inspector
+        public bool enableMouseHook = true;     // Permet d'activer ou désactiver le hook souris dans l'inspector
 
-        if (enableMouseHook)
-            InputHook.EnableHook(InputHook.HookType.Mouse);
-    }
+        void Start()
+        {
+            // Active les hooks selon les paramètres
+            if (enableKeyboardHook)
+                InputHook.EnableHook(InputHook.HookType.Keyboard);
 
-    private void OnDestroy() => DeactivateInputHooks();
+            if (enableMouseHook)
+                InputHook.EnableHook(InputHook.HookType.Mouse);
+        }
 
-    private void OnApplicationQuit() => DeactivateInputHooks();
+        private void OnDestroy() => DeactivateInputHooks();
+
+        private void OnApplicationQuit() => DeactivateInputHooks();
 
 
-    private void DeactivateInputHooks()
-    {
-        // Désactive les hooks lorsque l'objet est détruit
-        if (enableKeyboardHook)
-            InputHook.DisableHook(InputHook.HookType.Keyboard);
+        private void DeactivateInputHooks()
+        {
+            // Désactive les hooks lorsque l'objet est détruit
+            if (enableKeyboardHook)
+                InputHook.DisableHook(InputHook.HookType.Keyboard);
 
-        if (enableMouseHook)
-            InputHook.DisableHook(InputHook.HookType.Mouse);
-    }
+            if (enableMouseHook)
+                InputHook.DisableHook(InputHook.HookType.Mouse);
+        }
+    } 
 }
