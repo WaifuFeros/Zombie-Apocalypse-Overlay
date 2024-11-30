@@ -32,7 +32,8 @@ public class SettingsSave : SaveFile
 
     // General
     public float GroundHeight = 0.2f;
-    public float CharacterSize = 1;
+    public float EntitySize = 1;
+    public float Alpha = 1;
 
     // Zombies
     public int ZombieLimit = 10;

@@ -10,6 +10,7 @@ namespace WMG.ZombieApocalypseOverlay
     {
         [SerializeField] private Animator _animator;
         [SerializeField] private ParticleSystem _hitMarker;
+        [SerializeField] private SpriteRenderer _renderer;
 
         [Space]
         [SerializeField] private int _baseDamage = 2;
@@ -20,6 +21,9 @@ namespace WMG.ZombieApocalypseOverlay
         {
             if (!_animator)
                 _animator = GetComponent<Animator>();
+
+            //EntitySettings.OnAlphaChanged += OnAlphaChanged;
+            EntitySettings.OnSizeChanged += OnSizeChanged;
         }
 
         private void Start()
@@ -56,6 +60,16 @@ namespace WMG.ZombieApocalypseOverlay
             zombieHit.TakeDamage(_baseDamage);
             _hitMarker.transform.position = zombieHit.transform.position;
             _hitMarker.Emit(1);
+        }
+
+        private void OnSizeChanged(float size) => transform.localScale = Vector3.one * size;
+
+        private void OnAlphaChanged(float alpha)
+        {
+            Color newAlpha = _renderer.color;
+            newAlpha.a = alpha;
+
+            _renderer.color = newAlpha;
         }
     } 
 }

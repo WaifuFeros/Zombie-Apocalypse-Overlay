@@ -21,6 +21,12 @@ namespace WMG.ZombieApocalypseOverlay
 
         private float _speed = 0.1f;
 
+        private void Awake()
+        {
+            //EntitySettings.OnAlphaChanged += ChangeAlpha;
+            EntitySettings.OnSizeChanged += ChangeSize;
+        }
+
         private void Update()
         {
             transform.Translate(Vector3.right * _speed * Time.deltaTime);
@@ -40,7 +46,12 @@ namespace WMG.ZombieApocalypseOverlay
         {
             ZombieWaveManager.RemoveZombie(this);
             gameObject.SetActive(false);
-            _renderer.color = Color.white;
+            Color resetColor = _renderer.color;
+            resetColor.r = 1;
+            resetColor.g = 1;
+            resetColor.b = 1;
+            _renderer.color = resetColor;
+
             OnDeath?.Invoke(this);
         }
         public void PoolReset()
@@ -48,6 +59,16 @@ namespace WMG.ZombieApocalypseOverlay
             HP = _startingHP;
             _speed = Random.Range(_speedRange.Min, _speedRange.Max) * _speedMultiplier;
             ZombieWaveManager.AddZombie(this);
+        }
+
+        public void ChangeSize(float size) => transform.localScale = Vector3.one * size;
+
+        public void ChangeAlpha(float alpha)
+        {
+            Color newAlpha = _renderer.color;
+            newAlpha.a = alpha;
+
+            _renderer.color = newAlpha;
         }
 
         private void OnDrawGizmosSelected()

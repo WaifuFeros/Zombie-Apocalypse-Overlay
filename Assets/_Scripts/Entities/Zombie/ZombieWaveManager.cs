@@ -30,12 +30,15 @@ namespace WMG.ZombieApocalypseOverlay
 
         [Header("Settings")]
         [SerializeField] private InputField _groundHeightField;
+        [SerializeField] private Slider _groundHeightSlider;
         [SerializeField] private InputField _zombieLimitField;
 
         private ObjectPool<Zombie> _pool;
 
         private float _zombieSpawnCharge = 0;
         private int _zombieCount;
+        private float _alpha;
+        private float _size;
 
         private void Awake()
         {
@@ -50,6 +53,8 @@ namespace WMG.ZombieApocalypseOverlay
             _zombieSpawnCharge = _startingCharge;
 
             InputHook.MouseClicked += MouseClick;
+            //EntitySettings.OnAlphaChanged += x => _alpha = x;
+            EntitySettings.OnSizeChanged += x => _size = x;
         }
 
         private void Start()
@@ -61,7 +66,7 @@ namespace WMG.ZombieApocalypseOverlay
                 _pool.Release(PoolInit());
             }
 
-            Settings_SetInputFields();
+            Settings_InitFields();
         }
 
         private void Update()
@@ -86,7 +91,6 @@ namespace WMG.ZombieApocalypseOverlay
 
         public static List<Zombie> GetZombiesByRange(Vector3 attackerPosition, int count = 1)
         {
-            Debug.Log(All.Count);
             return All.OrderBy(x => (x.transform.position - attackerPosition).sqrMagnitude).ToList().GetRange(0, Mathf.Min(count, ZombieCount));
         }
 
@@ -133,6 +137,8 @@ namespace WMG.ZombieApocalypseOverlay
             go.SetActive(false);
 
             var zombie = go.GetComponent<Zombie>();
+            //zombie.ChangeAlpha(_alpha);
+            zombie.ChangeSize(_size);
             zombie.OnDeath += OnZombieDied;
 
             return zombie;
@@ -174,9 +180,11 @@ namespace WMG.ZombieApocalypseOverlay
             //save.ChargeOverTime = _chargeOverTime;
         } 
 
-        private void Settings_SetInputFields()
+        private void Settings_InitFields()
         {
-            _groundHeightField.text = _zombieSpawnPoint.transform.localPosition.y.ToString();
+            float height = _zombieSpawnPoint.transform.localPosition.y;
+            _groundHeightField.text = height.ToString();
+            _groundHeightSlider.value = height;
             _zombieLimitField.text = ZombieLimit.ToString();
         }
 

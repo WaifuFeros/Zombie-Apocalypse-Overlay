@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3615895809375442019}
   - component: {fileID: 2376408372016246970}
-  m_Layer: 0
-  m_Name: Soldier Pivot
+  m_Layer: 6
+  m_Name: Soldier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 8460741914437337740}
   _hitMarker: {fileID: 7230842808125436497}
+  _renderer: {fileID: 5381065699133550357}
   _baseDamage: 2
   _penetrationLevel: 1
   _chargePerShot: 5
@@ -63,8 +64,8 @@ GameObject:
   - component: {fileID: 7154670144550444389}
   - component: {fileID: 5381065699133550357}
   - component: {fileID: 8460741914437337740}
-  m_Layer: 0
-  m_Name: Soldier
+  m_Layer: 6
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,7 +109,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 234eeb0eef1a60343a96f494b6d1c04c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -174,7 +175,7 @@ GameObject:
   - component: {fileID: 3454583303591606077}
   - component: {fileID: 1367926382493584741}
   - component: {fileID: 4437175568140300411}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Combo Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -272,7 +273,7 @@ GameObject:
   - component: {fileID: 1274046962247950352}
   - component: {fileID: 1278290931200805755}
   - component: {fileID: 3028980078489704676}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Combo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -350,7 +351,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.5290003
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 192445086425478603, guid: 52401316f69668b47a3389b72d72e6c7, type: 3}
       propertyPath: m_LocalPosition.y
