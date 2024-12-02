@@ -66,15 +66,15 @@ namespace WMG.OverlayWindow
         private void Update()
         {
             //SetClickThrough(Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)) == null);
-            SetClickThrough(!EventSystem.current.IsPointerOverGameObject());
+            SetClickable(EventSystem.current.IsPointerOverGameObject());
         }
 
-        private void SetClickThrough(bool clickThrough)
+        private void SetClickable(bool clickable)
         {
-            if (clickThrough)
-                SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
-            else
+            if (clickable)
                 SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST);
+            else
+                SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
         }
     }
 

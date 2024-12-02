@@ -34,6 +34,7 @@ public class SettingsSave : SaveFile
     public float GroundHeight = 0.2f;
     public float EntitySize = 1;
     public float Alpha = 1;
+    public float HoveredAlpha = 0.1f;
 
     // Zombies
     public int ZombieLimit = 10;
@@ -46,4 +47,7 @@ public class SettingsSave : SaveFile
     public float ChargeOverTime = 20;
     public float ChargeOnClick = 70;
     public float ChargePerShot = 5;
+
+    // System
+    public int QualityLevel = 0;
 }
