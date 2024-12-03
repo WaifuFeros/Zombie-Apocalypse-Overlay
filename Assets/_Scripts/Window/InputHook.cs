@@ -1,50 +1,70 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace WMG.OverlayWindow
 {
+    /// <summary>
+    /// Classe principale pour gérer les hooks clavier et souris.
+    /// Capture les entrées utilisateur globalement même lorsque l'application n'est pas en focus.
+    /// </summary>
     public static class InputHook
     {
-        // Constantes pour les hooks de bas niveau
-        private const int WH_KEYBOARD_LL = 13;  // Identifiant pour le hook de clavier
-        private const int WH_MOUSE_LL = 14;     // Identifiant pour le hook de souris
+        // Hashset pour garder en mémoire quelles touches sont appuyées
+        private static HashSet<KeyCode> _keysPressed = new HashSet<KeyCode>();
 
-        // Messages pour les �v�nements de clavier et de souris
-        private const int WM_KEYDOWN = 0x0100;        // Code pour la pression d'une touche
-        private const int WM_LBUTTONDOWN = 0x0201;    // Code pour un clic gauche
-        private const int WM_RBUTTONDOWN = 0x0204;    // Code pour un clic droit
-        private const int WM_MBUTTONDOWN = 0x0207;    // Code pour un clic du milieu
+        // Constantes pour identifier les types de hooks
+        private const int WH_KEYBOARD_LL = 13; // Hook clavier bas-niveau
+        private const int WH_MOUSE_LL = 14;    // Hook souris bas-niveau
 
-        // Enum�ration pour les types de clics de souris
-        public enum MouseClickType
-        {
-            LeftClick,
-            RightClick,
-            MiddleClick
-        }
+        // Constantes pour les événements Windows
+        private const int WM_KEYDOWN = 0x0100;      // Touche pressée
+        private const int WM_KEYUP = 0x0101;        // Touche relâchée
+        private const int WM_LBUTTONDOWN = 0x0201;  // Clic gauche
+        private const int WM_RBUTTONDOWN = 0x0204;  // Clic droit
+        private const int WM_MBUTTONDOWN = 0x0207;  // Clic du milieu
 
-        // Enum�ration pour les types de hooks
-        public enum HookType
-        {
-            Keyboard,
-            Mouse
-        }
+        // Enumérations pour les types d'événements gérés
+        public enum MouseClickType { LeftClick, RightClick, MiddleClick }
+        public enum HookType { Keyboard, Mouse }
 
-        // D�l�gu�s pour les hooks
+        /// <summary>
+        /// Délégué pour le hook clavier bas-niveau.
+        /// </summary>
+        /// <param name="nCode">Le code indiquant comment traiter l'événement.</param>
+        /// <param name="wParam">Paramètre pour l'événement Windows.</param>
+        /// <param name="lParam">Paramètre additionnel contenant des informations sur l'événement.</param>
+        /// <returns>Un pointeur vers le prochain hook de la chaîne.</returns>
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        /// <summary>
+        /// Délégué pour le hook souris bas-niveau.
+        /// </summary>
+        /// <param name="nCode">Le code indiquant comment traiter l'événement.</param>
+        /// <param name="wParam">Paramètre pour l'événement Windows.</param>
+        /// <param name="lParam">Paramètre additionnel contenant des informations sur l'événement.</param>
+        /// <returns>Un pointeur vers le prochain hook de la chaîne.</returns>
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+
+        // Délégués pointant sur les callbacks pour clavier et souris
         private static LowLevelKeyboardProc _keyboardProc = KeyboardHookCallback;
         private static LowLevelMouseProc _mouseProc = MouseHookCallback;
 
-        // Identifiants pour les hooks
+        // Handles pour stocker les hooks actifs
         private static IntPtr _keyboardHookID = IntPtr.Zero;
         private static IntPtr _mouseHookID = IntPtr.Zero;
 
-        // �v�nements pour notifier des actions clavier et souris
+        // Événements pour notifier les actions détectées
         public static event Action<KeyCode> KeyPressed;
+        public static event Action<KeyCode> KeyReleased;
         public static event Action<MouseClickType> MouseClicked;
 
-        // M�thode pour activer un hook selon le type sp�cifi�
+        /// <summary>
+        /// Active un hook (clavier ou souris).
+        /// </summary>
         public static void EnableHook(HookType hookType)
         {
             switch (hookType)
@@ -61,7 +81,9 @@ namespace WMG.OverlayWindow
             }
         }
 
-        // M�thode pour d�sactiver un hook selon le type sp�cifi�
+        /// <summary>
+        /// Désactive un hook actif.
+        /// </summary>
         public static void DisableHook(HookType hookType)
         {
             switch (hookType)
@@ -84,7 +106,9 @@ namespace WMG.OverlayWindow
             }
         }
 
-        // M�thode pour d�finir un hook avec l'identifiant appropri�
+        /// <summary>
+        /// Définit un hook système avec l'API Windows.
+        /// </summary>
         private static IntPtr SetHook(int idHook, Delegate proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -94,29 +118,54 @@ namespace WMG.OverlayWindow
             }
         }
 
-        // D�l�gu� pour le hook clavier
-        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        // Callback pour le hook clavier
+        /// <summary>
+        /// Callback pour capturer les événements clavier.
+        /// </summary>
         private static IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            // Vérifie si l'événement doit être traité
+            if (nCode >= 0)
             {
+                // Récupère le code de la touche virtuelle
                 int vkCode = Marshal.ReadInt32(lParam);
-                KeyCode keyCode = ConvertVirtualKeyCodeToKeyCode(vkCode);
 
+                // Convertit le code virtuel en KeyCode Unity
+                KeyCode keyCode = InputHookUtility.ConvertVirtualKeyCodeToKeyCode(vkCode);
+
+                // Si la touche est valide (non mappée à KeyCode.None)
                 if (keyCode != KeyCode.None)
                 {
-                    KeyPressed?.Invoke(keyCode);
+                    // Vérifie si l'événement est une pression de touche (KeyDown)
+                    if (wParam == (IntPtr)WM_KEYDOWN)
+                    {
+                        // Si la touche n'est pas déjà dans le HashSet, c'est la première pression
+                        if (!_keysPressed.Contains(keyCode))
+                        {
+                            _keysPressed.Add(keyCode); // Ajoute la touche au HashSet
+                            KeyPressed?.Invoke(keyCode); // Déclenche l'événement de touche pressée
+                        }
+                    }
+                    // Vérifie si l'événement est un relâchement de touche (KeyUp)
+                    else if (wParam == (IntPtr)WM_KEYUP)
+                    {
+                        // Retire la touche du HashSet lorsqu'elle est relâchée
+                        if (_keysPressed.Contains(keyCode))
+                        {
+                            _keysPressed.Remove(keyCode);
+                            KeyReleased?.Invoke(keyCode); // Déclenche l'événement de touche relâchée
+                        }
+                    }
                 }
             }
+
+            // Passe l'événement au prochain hook de la chaîne
             return CallNextHookEx(_keyboardHookID, nCode, wParam, lParam);
         }
 
-        // D�l�gu� pour le hook souris
-        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        // Callback pour le hook souris
+        /// <summary>
+        /// Callback pour capturer les événements souris.
+        /// </summary>
         private static IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
@@ -134,66 +183,10 @@ namespace WMG.OverlayWindow
                     MouseClicked?.Invoke(MouseClickType.MiddleClick);
                 }
             }
-            return CallNextHookEx(_mouseHookID, nCode, wParam, lParam);
+            return CallNextHookEx(_mouseHookID, nCode, wParam, lParam); // Appelle le prochain hook
         }
 
-        // Conversion des codes de touches virtuelles en KeyCode Unity
-        private static KeyCode ConvertVirtualKeyCodeToKeyCode(int vkCode)
-        {
-            switch (vkCode)
-            {
-                case 0x41: return KeyCode.A;
-                case 0x42: return KeyCode.B;
-                case 0x43: return KeyCode.C;
-                case 0x44: return KeyCode.D;
-                case 0x45: return KeyCode.E;
-                case 0x46: return KeyCode.F;
-                case 0x47: return KeyCode.G;
-                case 0x48: return KeyCode.H;
-                case 0x49: return KeyCode.I;
-                case 0x4A: return KeyCode.J;
-                case 0x4B: return KeyCode.K;
-                case 0x4C: return KeyCode.L;
-                case 0x4D: return KeyCode.M;
-                case 0x4E: return KeyCode.N;
-                case 0x4F: return KeyCode.O;
-                case 0x50: return KeyCode.P;
-                case 0x51: return KeyCode.Q;
-                case 0x52: return KeyCode.R;
-                case 0x53: return KeyCode.S;
-                case 0x54: return KeyCode.T;
-                case 0x55: return KeyCode.U;
-                case 0x56: return KeyCode.V;
-                case 0x57: return KeyCode.W;
-                case 0x58: return KeyCode.X;
-                case 0x59: return KeyCode.Y;
-                case 0x5A: return KeyCode.Z;
-                case 0x30: return KeyCode.Alpha0;
-                case 0x31: return KeyCode.Alpha1;
-                case 0x32: return KeyCode.Alpha2;
-                case 0x33: return KeyCode.Alpha3;
-                case 0x34: return KeyCode.Alpha4;
-                case 0x35: return KeyCode.Alpha5;
-                case 0x36: return KeyCode.Alpha6;
-                case 0x37: return KeyCode.Alpha7;
-                case 0x38: return KeyCode.Alpha8;
-                case 0x39: return KeyCode.Alpha9;
-                case 0x0D: return KeyCode.Return;
-                case 0x20: return KeyCode.Space;
-                case 0x08: return KeyCode.Backspace;
-                case 0x09: return KeyCode.Tab;
-                case 0x10: return KeyCode.LeftShift;
-                case 0x11: return KeyCode.LeftControl;
-                case 0x1B: return KeyCode.Escape;
-                case 0x25: return KeyCode.LeftArrow;
-                case 0x27: return KeyCode.RightArrow;
-                case 0x26: return KeyCode.UpArrow;
-                case 0x28: return KeyCode.DownArrow;
-                default: return KeyCode.None;
-            }
-        }
-
-        // Importation des fonctions de la DLL user32 pour g�rer les hooks
+        // Fonctions externes de l'API Windows
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, Delegate lpfn, IntPtr hMod, uint dwThreadId);
 
@@ -206,5 +199,5 @@ namespace WMG.OverlayWindow
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
-    } 
+    }
 }
