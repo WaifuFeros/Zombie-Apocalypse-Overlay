@@ -19,11 +19,6 @@ public class TrayIconManager : MonoBehaviour
     {
 #if (!UNITY_EDITOR)
         _trayIcon = CreateNotifyIcon();
-
-        foreach (NotifyIconOption option in options)
-        {
-            _trayIcon.ContextMenuStrip.Items.Add(option.name, null, (sender, args) => option.OnClick?.Invoke());
-        }
 #endif
 
         //trayIcon = new TrayIcon();
@@ -48,8 +43,10 @@ public class TrayIconManager : MonoBehaviour
             Visible = true,
         };
 
-        //icon.ContextMenuStrip.Items.Add("Settings", null, (sender, args) => Trace.WriteLine("Open settings"));
-        //icon.ContextMenuStrip.Items.Add("Close", null, Close);
+        foreach (NotifyIconOption option in options)
+        {
+            _trayIcon.ContextMenuStrip.Items.Add(option.name, null, (sender, args) => option.OnClick?.Invoke());
+        }
 
         return icon;
     }

@@ -31,13 +31,13 @@ public class SettingsSave : SaveFile
     #endregion
 
     // General
-    public float GroundHeight = 0.2f;
-    public float EntitySize = 1;
+    public float GroundHeight = 0f;
+    public float EntitySize = 0.6f;
     public float Alpha = 1;
-    public float HoveredAlpha = 0.1f;
+    public float HoveredAlpha = 0.05f;
 
     // Zombies
-    public int ZombieLimit = 10;
+    public int ZombieLimit = 15;
     public int ZombieHP = 10;
     public ValueRange ZombieSpeed = new ValueRange(0.8f, 3f);
     public ValueRange SpawnBoundX = new ValueRange(-9.5f, -9.5f);
