@@ -45,7 +45,7 @@ public class TrayIconManager : MonoBehaviour
 
         foreach (NotifyIconOption option in options)
         {
-            _trayIcon.ContextMenuStrip.Items.Add(option.name, null, (sender, args) => option.OnClick?.Invoke());
+            icon.ContextMenuStrip.Items.Add(option.name, null, (sender, args) => option.OnClick?.Invoke());
         }
 
         return icon;
