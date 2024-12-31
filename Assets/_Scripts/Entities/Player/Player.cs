@@ -29,7 +29,8 @@ namespace WMG.ZombieApocalypseOverlay
         private void Start()
         {
 #if (!UNITY_EDITOR)
-        InputHook.KeyPressed += (keyCode) => Shoot();
+            InputHook.KeyPressed += (keyCode) => Shoot();
+            InputHook.MouseClicked += (clickType) => Shoot();
 #endif
         }
 
