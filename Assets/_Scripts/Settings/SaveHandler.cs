@@ -14,7 +14,10 @@ namespace WMG
         {
             SettingLoader.Load();
             if (SettingsSave.Current == null)
+            {
                 SettingsSave.Current = new SettingsSave();
+                SettingsSave.Current.TargetFrameRate = (int)Screen.resolutions.Select(x => x.refreshRateRatio.value).OrderByDescending(x => x).First();
+            }
             components = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISavedComponent<SettingsSave>>().ToList();
 
             foreach (var component in components)
@@ -29,7 +32,7 @@ namespace WMG
             {
                 component.OnSave(SettingsSave.Current);
             }
-            SettingLoader.SaveCurrent();
+            //SettingLoader.SaveCurrent();
 
             SettingsSave.OnChanged = null;
         }

@@ -12,17 +12,19 @@ public class TrayIconManager : MonoBehaviour
     [SerializeField] private Sprite spriteIcon;
     [SerializeField] private List<NotifyIconOption> options;
     private NotifyIcon _trayIcon;
-    private int _width = 40;
-    private int _height = 40;
+    private int _width = 32;
+    private int _height = 32;
 
     void Start()
     {
+#if (!UNITY_EDITOR)
         _trayIcon = CreateNotifyIcon();
 
         foreach (NotifyIconOption option in options)
         {
             _trayIcon.ContextMenuStrip.Items.Add(option.name, null, (sender, args) => option.OnClick?.Invoke());
         }
+#endif
 
         //trayIcon = new TrayIcon();
 

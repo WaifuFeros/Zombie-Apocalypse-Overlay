@@ -9,9 +9,11 @@ using WMG;
 public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
 {
     [SerializeField] private Dropdown _qualityDropdown;
+    [SerializeField] private InputField _TargetFrameRateField;
 
     private void Start()
     {
+        TargetFrameRateInit();
         QualityLevelInit();
     }
 
@@ -32,7 +34,27 @@ public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
         _qualityDropdown.onValueChanged.AddListener(SetQualityLevel);
     }
 
+    private void TargetFrameRateInit()
+    {
+        if (_TargetFrameRateField == null)
+            return;
+
+        _TargetFrameRateField.SetTextWithoutNotify(Application.targetFrameRate.ToString());
+        _TargetFrameRateField.onEndEdit.AddListener(SetTargetFrameRate);
+    }
+
     private void SetQualityLevel(int qualityLevel) => QualitySettings.SetQualityLevel(qualityLevel);
+
+    public void SetTargetFrameRate(string targetFrameRate)
+    {
+        SetTargetFrameRate(targetFrameRate.FormatToInt());
+    }
+
+    public void SetTargetFrameRate(int targetFrameRate)
+    {
+        targetFrameRate = Mathf.Max(targetFrameRate, 30);
+        Application.targetFrameRate = targetFrameRate;
+    }
 
     public void LoadGame(int buildIndex) => SceneManager.LoadScene(buildIndex);
 
@@ -46,10 +68,12 @@ public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
     public void OnLoad(SettingsSave save)
     {
         QualitySettings.SetQualityLevel(save.QualityLevel);
+        SetTargetFrameRate(save.TargetFrameRate);
     }
 
     public void OnSave(SettingsSave save)
     {
         save.QualityLevel = QualitySettings.GetQualityLevel();
+        save.TargetFrameRate = Application.targetFrameRate;
     }
 }

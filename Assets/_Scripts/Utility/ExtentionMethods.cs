@@ -63,4 +63,7 @@ public static class ExtentionMethods
 
         return hit;
     }
+
+    public static float FormatToFloat(this string value) => string.IsNullOrEmpty(value) ? 0f : float.Parse(value.Replace('.', ','));
+    public static int FormatToInt(this string value) => string.IsNullOrEmpty(value) ? 0 : int.Parse(value);
 }
