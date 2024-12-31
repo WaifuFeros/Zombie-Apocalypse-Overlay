@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using WMG;
 
 public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
 {
     [SerializeField] private Dropdown _qualityDropdown;
-    [SerializeField] private InputField _TargetFrameRateField;
+    [SerializeField] private InputField _targetFrameRateField;
+    [SerializeField] private ValueRange _frameRateRange = new ValueRange(30, 200);
 
     private void Start()
     {
@@ -36,11 +38,11 @@ public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
 
     private void TargetFrameRateInit()
     {
-        if (_TargetFrameRateField == null)
+        if (_targetFrameRateField == null)
             return;
 
-        _TargetFrameRateField.SetTextWithoutNotify(Application.targetFrameRate.ToString());
-        _TargetFrameRateField.onEndEdit.AddListener(SetTargetFrameRate);
+        _targetFrameRateField.SetTextWithoutNotify(Application.targetFrameRate.ToString());
+        _targetFrameRateField.onEndEdit.AddListener(SetTargetFrameRate);
     }
 
     private void SetQualityLevel(int qualityLevel) => QualitySettings.SetQualityLevel(qualityLevel);
@@ -52,8 +54,9 @@ public class GameMenu : MonoBehaviour, ISavedComponent<SettingsSave>
 
     public void SetTargetFrameRate(int targetFrameRate)
     {
-        targetFrameRate = Mathf.Max(targetFrameRate, 30);
+        targetFrameRate = Mathf.Clamp(targetFrameRate, (int)_frameRateRange.Min, (int)_frameRateRange.Max);
         Application.targetFrameRate = targetFrameRate;
+        _targetFrameRateField.SetTextWithoutNotify(targetFrameRate.ToString());
     }
 
     public void LoadGame(int buildIndex) => SceneManager.LoadScene(buildIndex);

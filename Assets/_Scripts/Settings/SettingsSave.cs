@@ -49,6 +49,6 @@ public class SettingsSave : SaveFile
     public float ChargePerShot = 5;
 
     // System
-    public int TargetFrameRate = 60;
+    public int TargetFrameRate = 120;
     public int QualityLevel = 0;
 }

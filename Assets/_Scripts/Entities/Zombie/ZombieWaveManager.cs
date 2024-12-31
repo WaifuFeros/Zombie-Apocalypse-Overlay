@@ -38,7 +38,7 @@ namespace WMG.ZombieApocalypseOverlay
         private float _zombieSpawnCharge = 0;
         private int _zombieCount;
         private float _alpha = 1;
-        private float _size = 1;
+        private float _startSize = 1;
 
         private void Awake()
         {
@@ -54,7 +54,7 @@ namespace WMG.ZombieApocalypseOverlay
 
             InputHook.MouseClicked += MouseClick;
             //EntitySettings.OnAlphaChanged += x => _alpha = x;
-            EntitySettings.OnSizeChanged += x => _size = x;
+            EntitySettings.OnSizeChanged += x => _startSize = x;
         }
 
         private void Start()
@@ -138,7 +138,7 @@ namespace WMG.ZombieApocalypseOverlay
 
             var zombie = go.GetComponent<Zombie>();
             //zombie.ChangeAlpha(_alpha);
-            zombie.ChangeSize(_size);
+            zombie.ChangeSize(_startSize);
             zombie.OnDeath += OnZombieDied;
 
             return zombie;
@@ -170,6 +170,7 @@ namespace WMG.ZombieApocalypseOverlay
         {
             Settings_SetGroundHeight(save.GroundHeight);
             ZombieLimit = save.ZombieLimit;
+            _startSize = save.EntitySize;
             //_chargeOverTime = save.ChargeOverTime;
         }
 
@@ -183,9 +184,9 @@ namespace WMG.ZombieApocalypseOverlay
         private void Settings_InitFields()
         {
             float height = _zombieSpawnPoint.transform.localPosition.y;
-            _groundHeightField.text = height.ToString();
-            _groundHeightSlider.value = height;
-            _zombieLimitField.text = ZombieLimit.ToString();
+            _groundHeightField.SetTextWithoutNotify(height.ToString());
+            _groundHeightSlider.SetValueWithoutNotify(height);
+            _zombieLimitField.SetTextWithoutNotify(ZombieLimit.ToString());
         }
 
         public void Settings_SetGroundHeight(string height)
@@ -202,7 +203,7 @@ namespace WMG.ZombieApocalypseOverlay
         {
             var limitInt = Mathf.Max(int.Parse(limit), 0);
             ZombieLimit = limitInt;
-            _zombieLimitField.text = limitInt.ToString();
+            _zombieLimitField.SetTextWithoutNotify(limitInt.ToString());
         }
 
         public void Settings_SetChargeOverTime(string chargeOverTime) => _chargeOverTime = chargeOverTime.FormatToFloat();
