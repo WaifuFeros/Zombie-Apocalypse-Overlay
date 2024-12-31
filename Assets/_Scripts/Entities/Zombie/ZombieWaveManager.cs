@@ -37,8 +37,8 @@ namespace WMG.ZombieApocalypseOverlay
 
         private float _zombieSpawnCharge = 0;
         private int _zombieCount;
-        private float _alpha;
-        private float _size;
+        private float _alpha = 1;
+        private float _size = 1;
 
         private void Awake()
         {
