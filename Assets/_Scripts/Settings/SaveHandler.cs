@@ -32,7 +32,7 @@ namespace WMG
             {
                 component.OnSave(SettingsSave.Current);
             }
-            //SettingLoader.SaveCurrent();
+            SettingLoader.SaveCurrent();
 
             SettingsSave.OnChanged = null;
         }
